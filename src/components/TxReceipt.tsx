@@ -9,57 +9,53 @@ interface Props {
 }
 
 export default function TxReceipt({ tx, proposalId, voteCount, passed }: Props) {
-    const rows: [string, string][] = [
-        ['Proposal', proposalId],
-        ['Result', passed ? 'Passed ✓' : 'Rejected ✗'],
-        ['For / Against / Abstain', `${voteCount.for} / ${voteCount.against} / ${voteCount.abstain}`],
-        ['Tx hash', formatTxShort(tx.hash)],
-        ['Block', tx.blockNumber.toLocaleString()],
-        ['Timestamp', new Date(tx.timestamp).toLocaleTimeString()],
-        ['Status', tx.status],
+    const rows: { label: string; value: string; tone?: 'pass' | 'fail' }[] = [
+        { label: 'Proposal', value: proposalId },
+        { label: 'Result', value: passed ? 'Passed' : 'Rejected', tone: passed ? 'pass' : 'fail' },
+        { label: 'Votes', value: `${voteCount.for} / ${voteCount.against} / ${voteCount.abstain}` },
+        { label: 'Tx hash', value: formatTxShort(tx.hash) },
+        { label: 'Block', value: tx.blockNumber.toLocaleString() },
+        { label: 'From', value: tx.from },
+        { label: 'To', value: tx.to },
+        { label: 'Timestamp', value: new Date(tx.timestamp).toLocaleString() },
+        { label: 'Status', value: tx.status },
     ]
 
     return (
-        <div style={{
-            border: '0.5px solid var(--color-border-tertiary)',
-            borderRadius: 'var(--border-radius-lg)',
-            padding: '1rem 1.25rem',
-            marginTop: '1rem',
-            background: 'var(--color-background-primary)'
-        }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: 13, fontWeight: 500 }}>Somnia transaction</span>
-                <span style={{
-                    fontSize: 11,
-                    padding: '3px 10px',
-                    borderRadius: 20,
-                    background: passed ? 'var(--color-background-success)' : 'var(--color-background-danger)',
-                    color: passed ? 'var(--color-text-success)' : 'var(--color-text-danger)',
-                    fontWeight: 500
-                }}>
-                    {passed ? 'Proposal passed' : 'Proposal rejected'}
-                </span>
+        <section className="surface-card receipt-card">
+            <div className="surface-inner">
+                <div className="receipt-header">
+                    <div>
+                        <p className="eyebrow">Somnia receipt</p>
+                        <h2 className="section-title" style={{ fontSize: '1.45rem' }}>On-chain execution</h2>
+                    </div>
+                    <span className={`receipt-status ${passed ? '' : 'is-rejected'}`}>
+                        {passed ? 'Proposal passed' : 'Proposal rejected'}
+                    </span>
+                </div>
+
+                <table className="receipt-table">
+                    <tbody>
+                        {rows.map(({ label, value, tone }) => (
+                            <tr key={label} className="receipt-row">
+                                <td className="receipt-label">{label}</td>
+                                <td className={`receipt-value ${label === 'Tx hash' || label === 'From' || label === 'To' ? 'mono' : ''} ${tone ? `result-${tone}` : ''}`}>
+                                    {value}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                <a
+                    className="receipt-link"
+                    href={tx.explorerUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    View on Somnia Explorer -&gt;
+                </a>
             </div>
-
-            <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
-                <tbody>
-                    {rows.map(([label, value]) => (
-                        <tr key={label} style={{ borderTop: '0.5px solid var(--color-border-tertiary)' }}>
-                            <td style={{ padding: '6px 0', color: 'var(--color-text-secondary)', width: '40%' }}>{label}</td>
-                            <td style={{ padding: '6px 0', fontFamily: label === 'Tx hash' ? 'var(--font-mono)' : undefined }}>{value}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            <a
-                href={tx.explorerUrl}
-                target="_blank"
-                rel="noreferrer"
-                style={{ display: 'block', marginTop: '0.75rem', fontSize: 12, color: 'var(--color-text-info)' }}
-            >
-                View on Somnia Explorer ↗
-            </a>
-        </div>
+        </section>
     )
 }

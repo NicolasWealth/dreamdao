@@ -1,36 +1,47 @@
-import React from 'react'
 import type { VoteResult as VoteResultType } from '../hooks/useVote'
 
 interface VoteResultProps {
     result: VoteResultType
 }
 
-export const VoteResult: React.FC<VoteResultProps> = ({ result }) => {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 mt-6 shadow-2xl text-center">
-            <h2 className={`text-4xl font-black mb-4 ${result.passed ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {result.passed ? 'PROPOSAL PASSED' : 'PROPOSAL REJECTED'}
-            </h2>
-            
-            <div className="flex justify-center gap-8 mb-6">
-                <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-emerald-500">{result.for}</span>
-                    <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">For</span>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-rose-500">{result.against}</span>
-                    <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Against</span>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-slate-500">{result.abstain}</span>
-                    <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Abstain</span>
-                </div>
-            </div>
+export const VoteResult = ({ result }: VoteResultProps) => {
+    const rows = [
+        { label: 'For', value: result.for.toString(), className: 'proposal-stat-for' },
+        { label: 'Against', value: result.against.toString(), className: 'proposal-stat-against' },
+        { label: 'Abstain', value: result.abstain.toString(), className: 'proposal-stat-abstain' },
+    ]
 
-            <div className="bg-slate-950 p-4 rounded-lg inline-block text-left border border-slate-800">
-                <span className="text-xs text-slate-500 uppercase font-bold block mb-1">On-Chain Execution</span>
-                <span className="font-mono text-blue-400 text-sm break-all">{result.txHash}</span>
+    return (
+        <section className="surface-card receipt-card">
+            <div className="surface-inner">
+                <div className="receipt-header">
+                    <div>
+                        <p className="eyebrow">Vote result</p>
+                        <h2 className="section-title" style={{ fontSize: '1.45rem' }}>
+                            {result.passed ? 'Proposal passed' : 'Proposal rejected'}
+                        </h2>
+                    </div>
+                    <span className={`receipt-status ${result.passed ? '' : 'is-rejected'}`}>
+                        {result.passed ? 'Winning majority' : 'Failed quorum'}
+                    </span>
+                </div>
+
+                <div className="stat-grid" style={{ marginBottom: '1rem' }}>
+                    {rows.map(row => (
+                        <article key={row.label} className="stat-card">
+                            <div className="stat-label">{row.label}</div>
+                            <div className={`stat-value ${row.className}`}>{row.value}</div>
+                        </article>
+                    ))}
+                </div>
+
+                <div className="receipt-table">
+                    <div className="receipt-row" style={{ display: 'grid', gridTemplateColumns: '0.38fr 1fr' }}>
+                        <div className="receipt-label">On-chain execution</div>
+                        <div className="receipt-value mono">{result.txHash}</div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
     )
 }

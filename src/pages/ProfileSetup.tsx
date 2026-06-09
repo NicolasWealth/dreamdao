@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 interface Profile {
@@ -14,14 +14,14 @@ const DEFAULTS: Profile = {
     riskTolerance: 40,
     security: 70,
     growth: 60,
-    community: 65
+    community: 65,
 }
 
 const SLIDERS: { key: keyof Omit<Profile, 'name'>; label: string; desc: string }[] = [
-    { key: 'riskTolerance', label: 'Risk tolerance', desc: 'How much treasury risk your agent accepts' },
-    { key: 'security', label: 'Security priority', desc: 'Weight given to protocol safety proposals' },
-    { key: 'growth', label: 'Growth focus', desc: 'Bias toward ecosystem expansion proposals' },
-    { key: 'community', label: 'Community weight', desc: 'Priority on community reward proposals' },
+    { key: 'riskTolerance', label: 'Risk tolerance', desc: 'How much treasury risk your agent can accept.' },
+    { key: 'security', label: 'Security priority', desc: 'Weight given to safety-first proposals.' },
+    { key: 'growth', label: 'Growth focus', desc: 'Bias toward ecosystem expansion.' },
+    { key: 'community', label: 'Community weight', desc: 'Priority on reward and participation proposals.' },
 ]
 
 export default function ProfileSetup() {
@@ -29,8 +29,18 @@ export default function ProfileSetup() {
     const [saved, setSaved] = useState(false)
     const navigate = useNavigate()
 
+    const agentName = profile.name ? `${profile.name}Agent` : 'YourAgent'
+
+    const preview = useMemo(() => JSON.stringify({
+        name: agentName,
+        riskTolerance: profile.riskTolerance,
+        security: profile.security,
+        growth: profile.growth,
+        community: profile.community,
+    }, null, 2), [agentName, profile])
+
     const set = (key: keyof Profile, value: string | number) => {
-        setProfile(prev => ({ ...prev, [key]: value }))
+        setProfile(previous => ({ ...previous, [key]: value }))
         setSaved(false)
     }
 
@@ -40,102 +50,80 @@ export default function ProfileSetup() {
         setTimeout(() => navigate('/'), 800)
     }
 
-    const agentName = profile.name ? `${profile.name}Agent` : 'YourAgent'
-
     return (
-        <div style={{ maxWidth: 560, margin: '2rem auto', padding: '0 1rem' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-                <h1 style={{ fontSize: 22, fontWeight: 500, marginBottom: 4 }}>Create your governance agent</h1>
-                <p style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
-                    Your agent will debate, negotiate, and vote on your behalf — autonomously.
-                </p>
-            </div>
+        <div className="profile-layout">
+            <section className="surface-card profile-card reveal-in" style={{ ['--enter-delay' as any]: '50ms' }}>
+                <div className="surface-inner">
+                    <div className="profile-header">
+                        <div>
+                            <p className="eyebrow">Agent setup</p>
+                            <h1 className="section-title">Create your governance agent</h1>
+                            <p className="section-copy">
+                                Your agent will debate, negotiate, and vote on your behalf - autonomously.
+                            </p>
+                        </div>
+                        <span className="chip chip-live">Profile builder</span>
+                    </div>
 
-            <div style={{
-                background: 'var(--color-background-primary)',
-                border: '0.5px solid var(--color-border-tertiary)',
-                borderRadius: 'var(--border-radius-lg)',
-                padding: '1rem 1.25rem',
-                marginBottom: '1rem'
-            }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Agent name</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <input
-                        type="text"
-                        placeholder="Enter your name"
-                        value={profile.name}
-                        onChange={e => set('name', e.target.value)}
-                        style={{ flex: 1 }}
-                    />
-                    <span style={{
-                        fontSize: 13,
-                        fontWeight: 500,
-                        padding: '6px 12px',
-                        background: 'var(--color-background-secondary)',
-                        borderRadius: 'var(--border-radius-md)',
-                        color: 'var(--color-text-primary)',
-                        whiteSpace: 'nowrap'
-                    }}>
-                        {agentName}
-                    </span>
-                </div>
-            </div>
-
-            <div style={{
-                background: 'var(--color-background-primary)',
-                border: '0.5px solid var(--color-border-tertiary)',
-                borderRadius: 'var(--border-radius-lg)',
-                padding: '1rem 1.25rem',
-                marginBottom: '1rem'
-            }}>
-                {SLIDERS.map(({ key, label, desc }) => (
-                    <div key={key} style={{ marginBottom: '1.25rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <div className="profile-field">
+                        <div className="profile-label-row">
                             <div>
-                                <span style={{ fontSize: 13, fontWeight: 500 }}>{label}</span>
-                                <span style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginLeft: 8 }}>{desc}</span>
+                                <p className="profile-label">Agent name</p>
+                                <p className="profile-desc">This becomes the visible persona across the dashboard and debate pages.</p>
                             </div>
-                            <span style={{ fontSize: 13, fontWeight: 500 }}>{profile[key]}</span>
+                            <span className="profile-value">{agentName}</span>
                         </div>
                         <input
-                            type="range"
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={profile[key]}
-                            onChange={e => set(key, Number(e.target.value))}
-                            style={{ width: '100%' }}
+                            type="text"
+                            placeholder="Enter your name"
+                            value={profile.name}
+                            onChange={event => set('name', event.target.value)}
                         />
                     </div>
-                ))}
-            </div>
 
-            <div style={{
-                background: 'var(--color-background-secondary)',
-                borderRadius: 'var(--border-radius-md)',
-                padding: '0.75rem 1rem',
-                fontSize: 12,
-                color: 'var(--color-text-secondary)',
-                marginBottom: '1rem',
-                fontFamily: 'var(--font-mono)'
-            }}>
-                {JSON.stringify({ ...profile, name: agentName }, null, 2)}
-            </div>
+                    <div className="profile-field" style={{ marginBottom: 0 }}>
+                        {SLIDERS.map(({ key, label, desc }) => (
+                            <div key={key} className="profile-field" style={{ marginBottom: 0 }}>
+                                <div className="profile-label-row">
+                                    <div>
+                                        <p className="profile-label">{label}</p>
+                                        <p className="profile-desc">{desc}</p>
+                                    </div>
+                                    <span className="profile-value">{profile[key]}</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min={0}
+                                    max={100}
+                                    step={1}
+                                    value={profile[key]}
+                                    onChange={event => set(key, Number(event.target.value))}
+                                />
+                            </div>
+                        ))}
+                    </div>
 
-            <button
-                className="btn-primary"
-                onClick={handleSave}
-                disabled={!profile.name}
-                style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: 14,
-                    fontWeight: 500,
-                    background: saved ? '#1D9E75' : undefined
-                }}
-            >
-                {saved ? 'Saved — redirecting…' : 'Deploy my agent'}
-            </button>
+                    <div className="hero-actions" style={{ marginTop: '1.1rem' }}>
+                        <button className="button-primary" onClick={handleSave} disabled={!profile.name}>
+                            {saved ? 'Saved - redirecting...' : 'Deploy my agent'}
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section className="surface-card reveal-in" style={{ ['--enter-delay' as any]: '180ms' }}>
+                <div className="surface-inner">
+                    <div className="section-head" style={{ marginBottom: '0.9rem' }}>
+                        <div>
+                            <p className="eyebrow">Configuration preview</p>
+                            <h2 className="section-title" style={{ fontSize: '1.45rem' }}>JSON payload</h2>
+                        </div>
+                        <span className="chip">Live preview</span>
+                    </div>
+
+                    <pre className="code-preview">{preview}</pre>
+                </div>
+            </section>
         </div>
     )
 }

@@ -9,11 +9,11 @@ interface AgentDebateProps {
     onStart?: (proposal: string) => void
 }
 
-const AgentDebate: React.FC<AgentDebateProps> = ({ 
-    messages: pMessages, 
-    phase: pPhase, 
-    running: pRunning, 
-    onStart 
+const AgentDebate: React.FC<AgentDebateProps> = ({
+    messages: pMessages,
+    phase: pPhase,
+    running: pRunning,
+    onStart,
 }) => {
     const [proposal, setProposal] = useState('')
     const feedRef = useRef<HTMLDivElement>(null)
@@ -22,7 +22,6 @@ const AgentDebate: React.FC<AgentDebateProps> = ({
     const messages = pMessages ?? localDebate.messages
     const phase = pPhase ?? localDebate.phase
     const running = pRunning ?? localDebate.running
-
 
     useEffect(() => {
         const feed = feedRef.current
@@ -100,17 +99,17 @@ const AgentDebate: React.FC<AgentDebateProps> = ({
                     <div className="chat-message chat-message-system">
                         <p>{phase}</p>
                         <div className="typing-dots" aria-hidden="true">
-                            <span></span>
-                            <span></span>
-                            <span></span>
+                            <span />
+                            <span />
+                            <span />
                         </div>
                     </div>
                 )}
             </div>
 
             {running && (
-                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', padding: '8px 0' }}>
-                    Agents deliberating…
+                <div className="deliberation-note">
+                    Agents deliberating...
                 </div>
             )}
 
