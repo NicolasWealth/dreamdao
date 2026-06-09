@@ -45,7 +45,7 @@ export function useAgentDebate() {
             }
 
             collected.push(firstMessage)
-            setMessages([firstMessage])
+            setMessages(prev => [...prev, firstMessage])
             history += `${firstAgent.name}: ${firstText}\n`
             setPhase('Grok call worked. Expanding to three agents')
             await new Promise(r => setTimeout(r, 400))

@@ -1,45 +1,48 @@
-import React from 'react'
 import type { VoteAgent } from '../hooks/useVote'
 
 interface VoteGridProps {
     agents: VoteAgent[]
 }
 
-export const VoteGrid: React.FC<VoteGridProps> = ({ agents }) => {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mt-6 shadow-2xl">
-            <h3 className="text-xl font-bold mb-4 text-white">Agent Voting Grid</h3>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
-                {agents.map((agent) => {
-                    let bgColor = 'bg-slate-800'
-                    let textColor = 'text-slate-600'
-                    
-                    if (agent.revealed) {
-                        if (agent.outcome === 'for') {
-                            bgColor = 'bg-emerald-500/20 border-emerald-500/50'
-                            textColor = 'text-emerald-400'
-                        } else if (agent.outcome === 'against') {
-                            bgColor = 'bg-rose-500/20 border-rose-500/50'
-                            textColor = 'text-rose-400'
-                        } else {
-                            bgColor = 'bg-slate-600/50 border-slate-500/50'
-                            textColor = 'text-slate-300'
-                        }
-                    }
+const LABELS: Record<VoteAgent['outcome'], string> = {
+    for: 'FOR',
+    against: 'AGN',
+    abstain: 'ABS',
+}
 
-                    return (
-                        <div 
-                            key={agent.id} 
-                            className={`flex flex-col items-center justify-center p-3 rounded-lg border border-transparent transition-all duration-300 ${bgColor}`}
-                        >
-                            <span className="text-xs font-bold text-slate-400 mb-1">{agent.id}</span>
-                            <span className={`text-sm font-black uppercase ${textColor}`}>
-                                {agent.revealed ? agent.outcome : '?'}
-                            </span>
-                        </div>
-                    )
-                })}
+export function VoteGrid({ agents }: VoteGridProps) {
+    return (
+        <section className="surface-card vote-card">
+            <div className="surface-inner">
+                <div className="vote-header">
+                    <div>
+                        <p className="eyebrow">Autonomous ballot</p>
+                        <h2 className="section-title" style={{ fontSize: '1.45rem' }}>FOR / AGN / ABS dot grid</h2>
+                    </div>
+
+                    <div className="vote-legend" aria-label="Outcome legend">
+                        <span className="vote-legend-item"><span className="vote-legend-dot for" /> FOR</span>
+                        <span className="vote-legend-item"><span className="vote-legend-dot against" /> AGN</span>
+                        <span className="vote-legend-item"><span className="vote-legend-dot abstain" /> ABS</span>
+                    </div>
+                </div>
+
+                <div className="vote-grid">
+                    {agents.map(agent => {
+                        const revealedClass = agent.revealed ? `vote-cell-${agent.outcome}` : 'vote-cell-hidden'
+
+                        return (
+                            <div key={agent.id} className={`vote-cell ${revealedClass}`}>
+                                <span className="vote-dot" aria-hidden="true" />
+                                <span className="vote-cell-id">{agent.id}</span>
+                                <span className="vote-cell-outcome">
+                                    {agent.revealed ? LABELS[agent.outcome] : '...'}
+                                </span>
+                            </div>
+                        )
+                    })}
+                </div>
             </div>
-        </div>
+        </section>
     )
 }
