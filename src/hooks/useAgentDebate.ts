@@ -16,7 +16,7 @@ export interface SystemMessage {
 
 export type ChatMessage = DebateMessage | SystemMessage
 
-const DEFAULT_AGENTS: AgentProfile[] = [
+export const DEFAULT_AGENTS: AgentProfile[] = [
     { name: 'AliceAgent', riskTolerance: 20, security: 90, growth: 30, community: 70 },
     { name: 'BobAgent', riskTolerance: 85, security: 30, growth: 90, community: 60 },
     { name: 'CarolAgent', riskTolerance: 50, security: 60, growth: 60, community: 80 },
